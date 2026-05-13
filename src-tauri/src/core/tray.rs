@@ -4,7 +4,7 @@ use tauri::{
     tray::{MouseButton, TrayIconBuilder, TrayIconEvent},
     App, Manager,
 };
-#[cfg(desktop)]
+#[cfg(not(any(target_os = "android", target_os = "ios")))]
 use tauri_plugin_autostart::{MacosLauncher, ManagerExt};
 
 pub fn create_tray_icon(app: &App) -> Result<()> {
