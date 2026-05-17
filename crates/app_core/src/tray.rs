@@ -1,28 +1,27 @@
 use anyhow::Result;
 use tauri::{
-    AppHandle, Manager, Runtime, Wry, menu::{CheckMenuItem, Menu, MenuItem}, tray::{MouseButton, TrayIconBuilder, TrayIconEvent}
+    AppHandle, Manager, Runtime, Wry,
+    menu::{CheckMenuItem, Menu, MenuItem},
+    tray::{MouseButton, TrayIconBuilder, TrayIconEvent},
 };
-#[cfg(all(
-    not(any(target_os = "android", target_os = "ios")),
-    feature = "autostart"
-))]
-use tauri_plugin_autostart::{MacosLauncher, ManagerExt};
+#[cfg(not(any(target_os = "android", target_os = "ios")))]
+use tauri_plugin_autostart::ManagerExt;
 
 use super::handle::Handle;
 
 pub fn create_tray_icon<R: Runtime>(app: &tauri::App<R>, visible: bool) -> Result<()> {
     let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
-    let show_i = MenuItem::with_id(app, "show", if visible { "Hide" } else { "Show" }, true, None::<&str>)?;
+    let show_i = MenuItem::with_id(
+        app,
+        "show",
+        if visible { "Hide" } else { "Show" },
+        true,
+        None::<&str>,
+    )?;
     let menu = Menu::with_items(app, &[&show_i, &quit_i])?;
-    #[cfg(all(
-        not(any(target_os = "android", target_os = "ios")),
-        feature = "autostart"
-    ))]
+
+    #[cfg(not(any(target_os = "android", target_os = "ios")))]
     {
-        let _ = app.handle().plugin(tauri_plugin_autostart::init(
-            MacosLauncher::LaunchAgent,
-            Some(vec!["--autostart"]),
-        ));
         let auto_i = CheckMenuItem::with_id(
             app,
             "autostart",
@@ -31,9 +30,9 @@ pub fn create_tray_icon<R: Runtime>(app: &tauri::App<R>, visible: bool) -> Resul
             app.autolaunch().is_enabled().unwrap_or(false),
             None::<&str>,
         )?;
-        // menu = Menu::with_items(app, &[&auto_i,&show_i, &quit_i])?;
         menu.insert_items(&[&auto_i], 0)?;
     }
+
     let _tray = TrayIconBuilder::new()
         .icon(app.default_window_icon().unwrap().clone())
         .menu(&menu)
@@ -48,12 +47,8 @@ pub fn create_tray_icon<R: Runtime>(app: &tauri::App<R>, visible: bool) -> Resul
                     let _ = window.set_focus();
                 }
             }
-
-            #[cfg(all(
-                not(any(target_os = "android", target_os = "ios")),
-                feature = "autostart"
-            ))]
-            "auto" => {
+            #[cfg(not(any(target_os = "android", target_os = "ios")))]
+            "autostart" => {
                 let autostart_manager = app.autolaunch();
                 let currently_enabled = autostart_manager.is_enabled().unwrap_or(false);
                 let new_state = if currently_enabled {
@@ -92,7 +87,6 @@ pub fn create_tray_icon<R: Runtime>(app: &tauri::App<R>, visible: bool) -> Resul
     Ok(())
 }
 
-
 pub fn update_menu_visible(visible: bool) {
     let app = Handle::global();
     let app_handle = app.app_handle().unwrap();
@@ -101,20 +95,19 @@ pub fn update_menu_visible(visible: bool) {
         .unwrap();
 }
 
-
 fn create_tray_menu(app_handle: &AppHandle, visiable: bool) -> Result<Menu<Wry>> {
     let quit_i = MenuItem::with_id(app_handle, "quit", "Quit", true, None::<&str>)?;
-    let show_i = MenuItem::with_id(app_handle, "show", if visiable { "Hide" } else { "Show" }, true, None::<&str>)?;
+    let show_i = MenuItem::with_id(
+        app_handle,
+        "show",
+        if visiable { "Hide" } else { "Show" },
+        true,
+        None::<&str>,
+    )?;
     let menu = Menu::with_items(app_handle, &[&show_i, &quit_i])?;
-    #[cfg(all(
-        not(any(target_os = "android", target_os = "ios")),
-        feature = "autostart"
-    ))]
+
+    #[cfg(not(any(target_os = "android", target_os = "ios")))]
     {
-        let _ = app_handle.plugin(tauri_plugin_autostart::init(
-            MacosLauncher::LaunchAgent,
-            Some(vec!["--autostart"]),
-        ));
         let auto_i = CheckMenuItem::with_id(
             app_handle,
             "autostart",
@@ -123,8 +116,8 @@ fn create_tray_menu(app_handle: &AppHandle, visiable: bool) -> Result<Menu<Wry>>
             app_handle.autolaunch().is_enabled().unwrap_or(false),
             None::<&str>,
         )?;
-        // menu = Menu::with_items(app, &[&auto_i,&show_i, &quit_i])?;
         menu.insert_items(&[&auto_i], 0)?;
     }
+
     Ok(menu)
 }

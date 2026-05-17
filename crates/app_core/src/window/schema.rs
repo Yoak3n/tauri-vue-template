@@ -50,6 +50,13 @@ impl WindowType {
 }
 
 
+impl From<WindowType> for String {
+    fn from(window_type: WindowType) -> Self {
+        window_type.label().to_string()
+    } 
+}
+
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum WindowOperationResult {
     /// 窗口已显示并获得焦点

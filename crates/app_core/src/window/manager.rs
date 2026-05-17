@@ -264,7 +264,7 @@ impl Manager {
         result
     }
 
-    fn destroy_window(&self, window_type: WindowType) -> bool {
+    pub fn destroy_window(&self, window_type: WindowType) -> bool {
         match self.get_window(window_type) {
             Some(window) => {
                 if let Err(e) = window.close() {
