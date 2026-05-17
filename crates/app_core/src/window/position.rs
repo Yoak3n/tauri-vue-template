@@ -1,4 +1,4 @@
-use crate::core::window::config::WindowConfig;
+use super::super::window::config::WindowConfig;
 use mouse_position::mouse_position::Mouse;
 use tauri::AppHandle;
 

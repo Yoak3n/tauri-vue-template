@@ -48,3 +48,18 @@ impl WindowType {
         }
     }
 }
+
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum WindowOperationResult {
+    /// 窗口已显示并获得焦点
+    Shown,
+    /// 窗口已隐藏
+    Hidden,
+    /// 创建了新窗口
+    Created,
+    /// 操作失败
+    Failed,
+    /// 无需操作
+    NoAction,
+}

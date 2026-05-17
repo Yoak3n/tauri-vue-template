@@ -54,6 +54,16 @@ checksum = "7f202df86484c868dbad7eaa557ef785d5c66295e41b460ef922eca0723b842c"
 [[package]]
 name = "app_core"
 version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "mouse_position",
+ "once_cell",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-plugin-autostart",
+ "tauri-plugin-opener",
+]
 
 [[package]]
 name = "async-broadcast"
@@ -3673,11 +3683,7 @@ dependencies = [
 name = "tauri-vue-template"
 version = "0.1.0"
 dependencies = [
- "anyhow",
- "mouse_position",
- "once_cell",
- "serde",
- "serde_json",
+ "app_core",
  "tauri",
  "tauri-build",
  "tauri-plugin-autostart",
