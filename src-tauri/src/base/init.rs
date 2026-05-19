@@ -13,10 +13,10 @@ pub fn configure<R: Runtime>(builder: Builder<R>) -> Builder<R> {
     };
 
     builder.setup(|app| {
-        let _ = crate::tray::create_tray_icon(app, false);
+        let _ = crate::base::tray::create_tray_icon(app, false);
 
-        app.manage(crate::state::AppState::default());
-        crate::lightweight::add_window_listeners(crate::window::schema::WindowType::Main);
+        app.manage(crate::base::state::AppState::default());
+        crate::base::lightweight::add_window_listeners(crate::base::window::schema::WindowType::Main);
 
         Ok(())
     })

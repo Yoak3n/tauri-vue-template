@@ -11,7 +11,7 @@ use super::{
     position::adjust_float_window_position,
 };
 
-use crate::{handle,tray::update_menu_visible};
+use crate::base::{handle,tray::update_menu_visible};
 
 pub struct Manager {
     configs: HashMap<WindowType, WindowConfig>,

@@ -1,4 +1,4 @@
-use crate::timer::Timer;
+use crate::base::timer::Timer;
 use anyhow::{Context, Result};
 use delay_timer::timer::task::TaskBuilder;
 use tauri::{Listener, Manager};
@@ -79,7 +79,7 @@ pub fn entry_lightweight_mode() {
     let _ = cancel_light_weight_timer();
 
     // 更新托盘显示
-    let _tray = crate::tray::update_menu_visible(false);
+    let _tray = crate::base::tray::update_menu_visible(false);
 }
 
 fn cancel_light_weight_timer() -> Result<()> {

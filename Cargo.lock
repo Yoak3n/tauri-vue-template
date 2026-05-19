@@ -58,24 +58,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f202df86484c868dbad7eaa557ef785d5c66295e41b460ef922eca0723b842c"
 
 [[package]]
-name = "app_core"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "chrono",
- "delay_timer",
- "mouse_position",
- "once_cell",
- "parking_lot",
- "serde",
- "serde_json",
- "tauri",
- "tauri-plugin-autostart",
- "tauri-plugin-opener",
- "tokio",
-]
-
-[[package]]
 name = "async-broadcast"
 version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4063,11 +4045,19 @@ dependencies = [
 name = "tauri-vue-template"
 version = "0.1.0"
 dependencies = [
- "app_core",
+ "anyhow",
+ "chrono",
+ "delay_timer",
+ "mouse_position",
+ "once_cell",
+ "parking_lot",
+ "serde",
+ "serde_json",
  "tauri",
  "tauri-build",
  "tauri-plugin-autostart",
  "tauri-plugin-opener",
+ "tokio",
 ]
 
 [[package]]
