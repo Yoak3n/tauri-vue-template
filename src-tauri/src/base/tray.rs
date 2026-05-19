@@ -2,10 +2,7 @@ use anyhow::Result;
 use tauri::{
     AppHandle, Manager, Runtime, Wry, menu::{CheckMenuItem, Menu, MenuItem}, tray::{MouseButton, TrayIconBuilder, TrayIconEvent}
 };
-#[cfg(all(
-    not(any(target_os = "android", target_os = "ios")),
-    feature = "autostart"
-))]
+#[cfg(not(any(target_os = "android", target_os = "ios")))]
 use tauri_plugin_autostart::{MacosLauncher, ManagerExt};
 
 use super::handle::Handle;
@@ -14,10 +11,7 @@ pub fn create_tray_icon<R: Runtime>(app: &tauri::App<R>, visible: bool) -> Resul
     let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
     let show_i = MenuItem::with_id(app, "show", if visible { "Hide" } else { "Show" }, true, None::<&str>)?;
     let menu = Menu::with_items(app, &[&show_i, &quit_i])?;
-    #[cfg(all(
-        not(any(target_os = "android", target_os = "ios")),
-        feature = "autostart"
-    ))]
+    #[cfg(not(any(target_os = "android", target_os = "ios")))]
     {
         let _ = app.handle().plugin(tauri_plugin_autostart::init(
             MacosLauncher::LaunchAgent,
@@ -49,10 +43,7 @@ pub fn create_tray_icon<R: Runtime>(app: &tauri::App<R>, visible: bool) -> Resul
                 }
             }
 
-            #[cfg(all(
-                not(any(target_os = "android", target_os = "ios")),
-                feature = "autostart"
-            ))]
+            #[cfg(not(any(target_os = "android", target_os = "ios")))]
             "auto" => {
                 let autostart_manager = app.autolaunch();
                 let currently_enabled = autostart_manager.is_enabled().unwrap_or(false);
@@ -106,10 +97,7 @@ fn create_tray_menu(app_handle: &AppHandle, visiable: bool) -> Result<Menu<Wry>>
     let quit_i = MenuItem::with_id(app_handle, "quit", "Quit", true, None::<&str>)?;
     let show_i = MenuItem::with_id(app_handle, "show", if visiable { "Hide" } else { "Show" }, true, None::<&str>)?;
     let menu = Menu::with_items(app_handle, &[&show_i, &quit_i])?;
-    #[cfg(all(
-        not(any(target_os = "android", target_os = "ios")),
-        feature = "autostart"
-    ))]
+    #[cfg(not(any(target_os = "android", target_os = "ios")))]
     {
         let _ = app_handle.plugin(tauri_plugin_autostart::init(
             MacosLauncher::LaunchAgent,
