@@ -1,9 +1,11 @@
 pub mod base;
 
+use base::init;
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    base::init::configure(tauri::Builder::default())
-        .invoke_handler(tauri::generate_handler![])
+    init::configure(tauri::Builder::default())
+        .invoke_handler(init::generate_handlers())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

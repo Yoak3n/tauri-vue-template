@@ -1,4 +1,11 @@
-use tauri::{Builder, Manager, Runtime};
+use tauri::{Builder, Manager, Runtime,generate_handler};
+use crate::base::cmd::*;
+
+
+pub fn generate_handlers() -> impl Fn(tauri::ipc::Invoke<tauri::Wry>) -> bool + Send + Sync + 'static{
+    generate_handler![greet]
+}
+
 
 pub fn configure<R: Runtime>(builder: Builder<R>) -> Builder<R> {
     let builder = builder.plugin(tauri_plugin_opener::init());
