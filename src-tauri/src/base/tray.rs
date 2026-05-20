@@ -1,14 +1,16 @@
 use anyhow::Result;
 use tauri::{
-    AppHandle, Manager, Runtime, Wry,
+    AppHandle, Runtime, Wry,
     menu::{CheckMenuItem, Menu, MenuItem},
     tray::{MouseButton, TrayIconBuilder, TrayIconEvent},
 };
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
 use tauri_plugin_autostart::ManagerExt;
 
-use super::handle::Handle;
+use crate::base::window::schema::WindowType;
 
+use super::handle::Handle;
+use super::window::manager::Manager as WM;
 pub fn create_tray_icon<R: Runtime>(app: &tauri::App<R>, visible: bool) -> Result<()> {
     let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
     let show_i = MenuItem::with_id(
@@ -18,8 +20,7 @@ pub fn create_tray_icon<R: Runtime>(app: &tauri::App<R>, visible: bool) -> Resul
         true,
         None::<&str>,
     )?;
-    let menu = Menu::with_items(app, &[&show_i, &quit_i])?;
-
+    let menu = Menu::with_items(app, &[ &show_i,&quit_i])?;
     #[cfg(not(any(target_os = "android", target_os = "ios")))]
     {
         let auto_i = CheckMenuItem::with_id(
@@ -33,7 +34,7 @@ pub fn create_tray_icon<R: Runtime>(app: &tauri::App<R>, visible: bool) -> Resul
         menu.insert_items(&[&auto_i], 0)?;
     }
 
-    let _tray = TrayIconBuilder::new()
+    let _tray = TrayIconBuilder::with_id("main")
         .icon(app.default_window_icon().unwrap().clone())
         .menu(&menu)
         .show_menu_on_left_click(false)
@@ -42,10 +43,7 @@ pub fn create_tray_icon<R: Runtime>(app: &tauri::App<R>, visible: bool) -> Resul
                 app.exit(0);
             }
             "show" => {
-                if let Some(window) = app.get_webview_window("main") {
-                    let _ = window.show();
-                    let _ = window.set_focus();
-                }
+                WM::global().toggle_window(WindowType::Main);
             }
             #[cfg(not(any(target_os = "android", target_os = "ios")))]
             "autostart" => {
@@ -64,23 +62,14 @@ pub fn create_tray_icon<R: Runtime>(app: &tauri::App<R>, visible: bool) -> Resul
             }
             _ => {}
         })
-        .on_tray_icon_event(|tray, event| {
+        .on_tray_icon_event(|_, event| {
             if let TrayIconEvent::Click {
                 button: MouseButton::Left,
                 button_state: tauri::tray::MouseButtonState::Up,
                 ..
             } = event
             {
-                let app = tray.app_handle();
-                if let Some(window) = app.get_webview_window("main") {
-                    let is_visible = window.is_visible().unwrap_or(false);
-                    if is_visible {
-                        let _ = window.hide();
-                    } else {
-                        let _ = window.show();
-                        let _ = window.set_focus();
-                    }
-                }
+                WM::global().toggle_window(WindowType::Main);
             }
         })
         .build(app)?;

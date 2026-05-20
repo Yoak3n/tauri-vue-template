@@ -1,5 +1,5 @@
-use std::{collections::HashSet, sync::{Arc, Mutex, OnceLock}};
-
+use std::{collections::HashSet, sync::{Arc,OnceLock}};
+use parking_lot::Mutex;
 #[derive(Clone)]
 pub struct AppState {
     pub lightweight: Arc<Mutex<LightWeightState>>,

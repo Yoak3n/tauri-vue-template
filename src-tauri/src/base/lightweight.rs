@@ -15,7 +15,6 @@ pub fn add_window_listeners(wt: WindowType) {
                 .state::<AppState>()
                 .lightweight
                 .lock()
-                .unwrap()
                 .listened_windows
                 .contains(wt.label())
         };
@@ -31,7 +30,6 @@ pub fn add_window_listeners(wt: WindowType) {
                     .state::<AppState>()
                     .lightweight
                     .lock()
-                    .unwrap()
                     .close_listeners
                     .push(close_handler);
             }
