@@ -44,7 +44,7 @@ impl WindowType {
 
     pub fn title(&self) -> &'static str {
         match self {
-            WindowType::Main => "",
+            WindowType::Main => "Tauri App",
         }
     }
 }

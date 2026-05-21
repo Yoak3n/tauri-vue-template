@@ -269,7 +269,7 @@ impl Manager {
     pub fn destroy_window(&self, window_type: WindowType) -> bool {
         match self.get_window(window_type) {
             Some(window) => {
-                if let Err(e) = window.close() {
+                if let Err(e) = window.destroy() {
                     println!("窗口销毁失败: {:?}", e);
                     return false;
                 }

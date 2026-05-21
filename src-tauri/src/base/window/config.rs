@@ -3,6 +3,7 @@ use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
 pub struct WindowConfig {
+    // title should change with window type, so there is no need to set it in config
     pub window_type: WindowType,
     pub inner_size: (f64, f64),
     pub min_inner_size: (f64, f64),
