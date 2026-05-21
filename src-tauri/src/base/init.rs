@@ -1,4 +1,4 @@
-use tauri::{Builder, Manager, generate_handler};
+use tauri::{AppHandle, Builder, Manager, RunEvent, generate_handler};
 use crate::base::cmd::*;
 
 
@@ -27,4 +27,31 @@ pub fn configure(builder: Builder<tauri::Wry>) -> Builder<tauri::Wry> {
 
         Ok(())
     })
+}
+
+pub fn app_event_handle(app_handle: &AppHandle, event: RunEvent) {
+    match event {
+        tauri::RunEvent::Ready | tauri::RunEvent::Resumed => {}
+        tauri::RunEvent::ExitRequested { api, code, .. } => {
+            if code.is_none() {
+                api.prevent_exit();
+            }
+        }
+        tauri::RunEvent::WindowEvent { label, event, .. } => {
+            // if label == "main" {
+            match event {
+                tauri::WindowEvent::CloseRequested { api, .. } => {
+                    api.prevent_close();
+                    let window = app_handle.get_webview_window(&label).unwrap();
+                    let _ = window.hide();
+                }
+                tauri::WindowEvent::Focused(true) => {}
+                tauri::WindowEvent::Focused(false) => {}
+                tauri::WindowEvent::Destroyed => {}
+                _ => {}
+            }
+            // }
+        }
+        _ => {}
+    }
 }

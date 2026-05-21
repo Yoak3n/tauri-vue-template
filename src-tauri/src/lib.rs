@@ -8,6 +8,7 @@ pub use base::window::manager::Manager as WM;
 pub fn run() {
     init::configure(tauri::Builder::default())
         .invoke_handler(init::generate_handlers())
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .build(tauri::generate_context!())
+        .expect("error while running tauri application")
+        .run(base::init::app_event_handle);
 }

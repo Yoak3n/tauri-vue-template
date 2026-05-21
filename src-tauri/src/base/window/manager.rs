@@ -11,6 +11,7 @@ use super::{
     position::adjust_float_window_position,
 };
 
+use crate::base::lightweight::add_window_listeners;
 use crate::base::{handle,tray::update_menu_visible};
 
 pub struct Manager {
@@ -134,6 +135,7 @@ impl Manager {
         
         let window = builder.build()?;
         window.set_focus()?;
+        add_window_listeners(window_type);
         Ok(window)
     }
 
@@ -362,7 +364,6 @@ impl Manager {
         for window_type in &WindowType::all() {
             let label = window_type.label();
             let state = self.get_cached_window_state(*window_type);
-            println!("window {} is {:?}", label, state);
             match state {
                 WindowState::VisibleFocused | WindowState::Minimized => {
                     return false; // 有窗口仍然可见或最小化
