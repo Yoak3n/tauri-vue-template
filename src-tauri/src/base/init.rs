@@ -1,14 +1,32 @@
 use tauri::{AppHandle, Builder, Manager, RunEvent, generate_handler};
+use tauri_plugin_log::{Target, TargetKind};
 use crate::base::cmd::*;
 
 
 pub fn generate_handlers() -> impl Fn(tauri::ipc::Invoke<tauri::Wry>) -> bool + Send + Sync + 'static{
-    generate_handler![greet]
+    generate_handler![greet, log_example]
 }
 
 
 pub fn configure(builder: Builder<tauri::Wry>) -> Builder<tauri::Wry> {
     let builder = builder.plugin(tauri_plugin_opener::init());
+
+    let builder = builder.plugin(
+        tauri_plugin_log::Builder::new()
+            .targets([
+                // 输出到控制台
+                Target::new(TargetKind::Stdout),
+                // 输出到前端控制台
+                Target::new(TargetKind::Webview),
+                // 输出到日志文件
+                Target::new(TargetKind::Folder {
+                    path: dirs::data_dir().unwrap_or_default().join("tauri-vue-template").join("logs"),
+                    file_name: Some("app".into()),
+                }),
+            ])
+            .level(log::LevelFilter::Info)
+            .build(),
+    );
 
     #[cfg(not(any(target_os = "android", target_os = "ios")))]
     let builder = {

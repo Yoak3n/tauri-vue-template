@@ -362,7 +362,6 @@ impl Manager {
     /// 检查是否所有窗口都已关闭（隐藏或不存在）
     pub fn are_all_windows_closed(&self) -> bool {
         for window_type in &WindowType::all() {
-            let label = window_type.label();
             let state = self.get_cached_window_state(*window_type);
             match state {
                 WindowState::VisibleFocused | WindowState::Minimized => {
