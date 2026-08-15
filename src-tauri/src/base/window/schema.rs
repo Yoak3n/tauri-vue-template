@@ -23,6 +23,10 @@ impl WindowType {
         [WindowType::Main]
     }
 
+    pub fn all_exclude_float() -> [Self; 1] {
+        [WindowType::Main]
+    }
+
     pub fn from_label(label: &str) -> Option<Self> {
         match label {
             "main" => Some(WindowType::Main),
