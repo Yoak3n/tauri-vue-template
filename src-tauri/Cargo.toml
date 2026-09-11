@@ -37,7 +37,7 @@ anyhow = "^1.0.102"
 parking_lot = "0.12"
 
 mouse_position = "0.1.4"
-delay_timer = "0.11.6"
+# delay_timer = "0.11.6"  # 已移除：其时间轮对长一次性任务存在整点迟到进位 bug（见 base/timer.rs 说明）
 dirs = "5"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]

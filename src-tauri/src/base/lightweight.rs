@@ -1,10 +1,9 @@
 use std::collections::HashSet;
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::OnceLock;
+use std::time::Duration;
 
-
-use anyhow::{Context, Result};
-use delay_timer::timer::task::TaskBuilder;
+use anyhow::Result;
+use parking_lot::Mutex;
 use tauri::{Listener, Manager};
 
 use super::{
@@ -15,11 +14,15 @@ use super::{
         schema::WindowType
     }
 };
-const LIGHT_WEIGHT_TASK_ID: u64 = 0;
 
-/// 标记轻量级定时器任务是否已被注册到 delay_timer 中
-/// 避免在未注册时调用 remove_task 触发 delay_timer 内部的 ERROR 日志
-static LIGHTWEIGHT_TIMER_ACTIVE: AtomicBool = AtomicBool::new(false);
+/// 10 分钟倒计时任务句柄（tokio sleep 实现，取代 delay_timer 时间轮 ——
+/// 时间轮对「一次性 + 随时取消」的任务存在整点迟到的进位 bug，见 base/timer.rs 顶部说明）
+static LIGHT_WEIGHT_TIMER: OnceLock<Mutex<Option<tauri::async_runtime::JoinHandle<()>>>> =
+    OnceLock::new();
+
+fn light_weight_timer_handle() -> &'static Mutex<Option<tauri::async_runtime::JoinHandle<()>>> {
+    LIGHT_WEIGHT_TIMER.get_or_init(|| Mutex::new(None))
+}
 
 
 
@@ -120,26 +123,12 @@ fn setup_light_weight_timer() -> Result<()> {
 
     Timer::global().init()?;
 
-    // 创建任务
-    let task = TaskBuilder::default()
-        .set_task_id(LIGHT_WEIGHT_TASK_ID)
-        .set_maximum_parallel_runnable_num(1)
-        .set_frequency_once_by_minutes(10)
-        .spawn_async_routine(move || async move {
-            entry_lightweight_mode();
-        })
-        .context("failed to create timer task")?;
-
-    // 添加任务到定时器
-    // 由于会定时刷新，所以这里需要添加一个不被刷新的容器
-    {
-        let delay_timer = Timer::global().delay_timer.write();
-        delay_timer
-            .add_task(task)
-            .context("failed to add timer task")?;
-    }
-
-    LIGHTWEIGHT_TIMER_ACTIVE.store(true, Ordering::Release);
+    // tokio sleep 倒计时：10 分钟后进入轻量模式（取代 delay_timer 时间轮一次性任务）
+    let handle = tauri::async_runtime::spawn(async move {
+        tokio::time::sleep(Duration::from_secs(10 * 60)).await;
+        entry_lightweight_mode();
+    });
+    *light_weight_timer_handle().lock() = Some(handle);
 
     Ok(())
 }
@@ -160,14 +149,8 @@ pub fn entry_lightweight_mode() {
 }
 
 fn cancel_light_weight_timer() -> Result<()> {
-    // 只在任务已注册时执行移除，避免 delay_timer 内部报 "No task-mark found" 错误
-    if !LIGHTWEIGHT_TIMER_ACTIVE.load(Ordering::Acquire) {
-        return Ok(());
+    if let Some(handle) = light_weight_timer_handle().lock().take() {
+        handle.abort();
     }
-
-    let delay_timer = Timer::global().delay_timer.write();
-    let _ = delay_timer.remove_task(LIGHT_WEIGHT_TASK_ID);
-
-    LIGHTWEIGHT_TIMER_ACTIVE.store(false, Ordering::Release);
     Ok(())
 }
